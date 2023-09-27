@@ -68,6 +68,9 @@ userSchema.methods = {
 
         )
     },
+    comparePassword: async function(plainTextPassword){
+        return await bcrypt.compare(plainTextPassword,this.password)
+    }
 }
 
 const User = model('User',userSchema)
