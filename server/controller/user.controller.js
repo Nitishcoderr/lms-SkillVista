@@ -1,5 +1,7 @@
 import User from "../models/user.model.js";
 import AppError from "../utils/error.util.js";
+import cloudinary from 'cloudinary'
+import fs from 'fs/promises'
 
 const cookieOptions = {
     maxAge:7*24*60*60*1000,
@@ -32,10 +34,33 @@ const register = async (req, res, next) => {
     })
 
     if(!user){
-        return next(new AppError('User registration failed,please try again',400))
+        return next(new AppError('Failed to register user',400))
     }
 
-    // TODO: file upload
+    // file upload on cloudinary
+
+    console.log(`File details > ${JSON.stringify(req.file)}`);
+    if(req.file){
+        try {
+            const result = await cloudinary.v2.uploader.upload(req.file.path,{
+                folder:'skillVista',
+                width:250,
+                height:250,
+                gravity:'faces',
+                crop:'fill'
+            });
+            if(result){
+                user.avatar.public_id = result.public_id;
+                user.avatar.secure_url = result.secure_url;
+                // Remove file from server
+                fs.rm(`uploads/${req.file.filename}`)
+            }
+        } catch (e) {
+            return next(new AppError(e.message || 'File not uploaded, please try again',500)
+            )
+        }
+    }
+
 
     await user.save();
 
@@ -94,7 +119,7 @@ const logout = (req, res) => {
         maxAge:0,
         httpOnly:true
     });
-    res.status(200),json({
+    res.status(200).json({
         success:true,
         message:'User logged out successfully'
     })

@@ -25,7 +25,7 @@ app.use('/ping',function(req,res){
 })
 
 // routes
-app.use('api/v1/user',userRoutes)
+app.use('/api/v1/user',userRoutes)
 
 app.all('*',(req,res)=>{
     res.status(404).send('OOPS! 404 page not found')
