@@ -159,7 +159,7 @@ const addLectureToCourseById = async (req, res, next) => {
         const lectureData = {
             title,
             description,
-            lecture:{}
+            lecture: {}
         };
         if (req.file) {
             try {

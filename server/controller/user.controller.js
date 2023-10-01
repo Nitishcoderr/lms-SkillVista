@@ -184,23 +184,23 @@ const forgotPassword = async (req, res, next) => {
 }
 
 // Reset password
-const resetPassword = async (req,res,next) => {
-    const {resetToken} = req.params
+const resetPassword = async (req, res, next) => {
+    const { resetToken } = req.params
 
-    const {password} = req.body;
+    const { password } = req.body;
 
     const forgetPasswordToken = crypto
-    .createHash('sha256')
-    .update(resetToken)
-    .digest('hex');
+        .createHash('sha256')
+        .update(resetToken)
+        .digest('hex');
 
     const user = await User.findOne({
         forgetPasswordToken,
-        forgetPasswordExpiry:{$gt:Date.now()}
+        forgetPasswordExpiry: { $gt: Date.now() }
     })
-    if(!user){
+    if (!user) {
         return next(
-            new AppError('Token is invalid or expired, please try again',400)
+            new AppError('Token is invalid or expired, please try again', 400)
         )
     }
     user.password = password;
@@ -209,33 +209,33 @@ const resetPassword = async (req,res,next) => {
     user.save()
 
     res.status(200).json({
-        success:true,
-        message:'Password changed successfully!'
+        success: true,
+        message: 'Password changed successfully!'
 
     })
 }
 
-const changePassword = async (req,res,next)=>{
-    const {oldPassword,newPassword} = req.body;
-    const {id} = req.user;
+const changePassword = async (req, res, next) => {
+    const { oldPassword, newPassword } = req.body;
+    const { id } = req.user;
 
-    if(!oldPassword || !newPassword){
+    if (!oldPassword || !newPassword) {
         return next(
-            new AppError('All fields are mandatory',400)
+            new AppError('All fields are mandatory', 400)
         )
     }
 
     const user = await User.findById(id).select('+password')
-    if(!user){
+    if (!user) {
         return next(
-            new AppError('User does not exit',400)
+            new AppError('User does not exit', 400)
         )
     }
     const isPasswordValid = await user.comparePassword(oldPassword);
 
-    if(!isPasswordValid){
+    if (!isPasswordValid) {
         return next(
-            new AppError('Invalid old password',400)
+            new AppError('Invalid old password', 400)
         )
     }
 
@@ -244,27 +244,27 @@ const changePassword = async (req,res,next)=>{
     await user.save();
     user.password = undefined;
     res.status(200).json({
-        success:true,
-        message:'Password changed successfully'
+        success: true,
+        message: 'Password changed successfully'
     })
 }
 
 
 // Update user
 
-const updateUser = async (req,res,next)=>{
-    const {fullName} = req.body;
-    const {id} = req.user.id;
+const updateUser = async (req, res, next) => {
+    const { fullName } = req.body;
+    const { id } = req.user.id;
     const user = await User.findById(id);
-    if(!user){
+    if (!user) {
         return next(
-            new AppError('User does not exist',400)
+            new AppError('User does not exist', 400)
         )
     }
-    if(req.fullName){
+    if (req.fullName) {
         user.fullName = fullName;
     }
-    if(req.file){
+    if (req.file) {
         await cloudinary.v2.uploader.destroy(user.avatar.public_id)
         try {
             const result = await cloudinary.v2.uploader.upload(req.file.path, {
@@ -287,9 +287,9 @@ const updateUser = async (req,res,next)=>{
     }
     await user.save()
     res.status(200).json({
-        success:true,
-        message:'User details updated successfully!'
+        success: true,
+        message: 'User details updated successfully!'
     })
 }
 
-export { register, login, logout, getProfile, forgotPassword, resetPassword,changePassword,updateUser }
+export { register, login, logout, getProfile, forgotPassword, resetPassword, changePassword, updateUser }
