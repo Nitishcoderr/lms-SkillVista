@@ -1,6 +1,8 @@
+import Payment from "../models/payment.model.js";
 import User from "../models/user.model.js";
 import { razorpay } from "../server.js";
 import AppError from "../utils/error.util.js";
+import crypto from 'crypto'
 
 
 const getRazorpayApiKey = async(req,res,next)=>{
@@ -10,6 +12,7 @@ const getRazorpayApiKey = async(req,res,next)=>{
         key:process.env.RAZORPAY_KEY_ID
     })
 }
+
 const buySubscription = async(req,res,next)=>{
     const {id} = req.user;
     const user = await User.findById(id)
@@ -27,7 +30,7 @@ const buySubscription = async(req,res,next)=>{
     }
 
     const subscription = await razorpay.subscriptions.create({
-        plan_id:process.env.RAZORPAY_PLAN_ID;
+        plan_id:process.env.RAZORPAY_PLAN_ID,
         customer_notify:1
     });
 
@@ -43,7 +46,45 @@ const buySubscription = async(req,res,next)=>{
     })
 
 }
+
 const verifySubscription = async(req,res,next)=>{
+    const {id} = req.user;
+    const {razorpay_payment_id,razorpay_signature,razorpay_subscription_id} = req.body;
+
+    const user = await User.findById(id);
+
+    if(!user){
+        return next(
+            new AppError('Unauthorized,please login',404)
+        )
+    }
+
+    const subscriptionId = user.subscription.id;
+
+    const generatedSignature = crypto
+    .createHmac('sha256',process.env.RAZORPAY_SECRET)
+    .update(`${razorpay_payment_id} | ${subscriptionId}`)
+    .digest('hex');
+
+    if(generatedSignature !== razorpay_signature){
+        return next(
+            new AppError('Payment not verified, please try again',500)
+        )
+    }
+
+    await Payment.create({
+        razorpay_payment_id,
+        razorpay_signature,
+        razorpay_subscription_id
+    });
+
+    user.subscription.status = 'active';
+    await user.save()
+
+    res.status(200).json({
+        status:true,
+        message:'Payment verified successfully!'
+    })
 
 }
 const cancelSubscription = async(req,res,next)=>{
