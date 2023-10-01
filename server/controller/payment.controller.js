@@ -1,11 +1,13 @@
 
-
-
 const getRazorpayApiKey = async(req,res,next)=>{
-    
+    res.status(200).json({
+        success:true,
+        message:'Razorpay API key',
+        key:process.env.RAZORPAY_KEY_ID
+    })
 }
 const buySubscription = async(req,res,next)=>{
-
+    
 }
 const verifySubscription = async(req,res,next)=>{
 
