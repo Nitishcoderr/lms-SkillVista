@@ -51,6 +51,12 @@
     @tailwind utilities;
 ```
 
+5. To enable daisyui modify tailwind.config plugin
+
+```
+    plugins: [require("daisyui"),require("@tailwindcss/line-clamp")],
+```
+
 ### Adding plugins and dependency
 
 ```
@@ -86,3 +92,4 @@ npm i @reduxjs/toolkit react-redux react-router-dom react-icons react-chartjs-2 
     "source.fixAll.eslint":true 
   }
 ```
+
