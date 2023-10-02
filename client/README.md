@@ -28,7 +28,7 @@
 1. install tailwind css
 
 ```
-    npm install -D tailwindcss
+    npm install -D tailwindcss postcss autoprefixer
 ```
 
 2. create tailwind config file
@@ -40,7 +40,7 @@
 3. add file extension to tailwind config file in the content property
 
 ```
-    "./src/**/*.{html,js,jsx,ts,tsx}"
+      content: ["./index.html","./src/**/*.{html,js,jsx,ts,tsx}"],
 ```
 
 4. Add the tailwind directive at the top of the `index.css` file
