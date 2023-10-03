@@ -3,6 +3,7 @@ import './App.css';
 import HomePage from './Pages/HomePage';
 import AboutUs from './Pages/AboutUs';
 import NotFound from './Pages/NotFound';
+import SignUp from './Pages/SignUp';
 
 function App() {
   return (
@@ -10,6 +11,7 @@ function App() {
       <Routes>
         <Route exact path='/' element={<HomePage/>} />
         <Route exact path='/about' element={<AboutUs/>} />
+        <Route exact path='/signup' element={<SignUp/>} />
         <Route  path='*' element={<NotFound/>} />
       </Routes>
     </>
