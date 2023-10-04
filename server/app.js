@@ -23,10 +23,6 @@ app.use(cookieParser())
 
 app.use(morgan('dev'))
 
-app.use('/ping', function (req, res) {
-    res.send('pong')
-})
-
 // routes
 app.use('/api/v1/user', userRoutes)
 app.use('/api/v1/courses', courseRoutes)
