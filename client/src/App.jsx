@@ -7,6 +7,7 @@ import SignUp from './Pages/SignUp';
 import Login from './Pages/Login';
 import CourseList from './Pages/Course/CourseList';
 import Contact from './Pages/Contact';
+import Denied from './Pages/Denied';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route exact path='/login' element={<Login/>} />
         <Route exact path='/courses' element={<CourseList/>} />
         <Route exact path='/contact' element={<Contact/>} />
+        <Route exact path='/denied' element={<Denied/>} />
         <Route  path='*' element={<NotFound/>} />
       </Routes>
     </>
