@@ -14,7 +14,7 @@ const HomeLayout = ({ children }) => {
   const isLoggedIn = useSelector((state) => state?.auth?.isLoggedIn);
 
   // For displaying the option acc to role
-  const role = useSelector((state) => state?.auth?.auth?.role);
+  const role = useSelector((state) => state?.auth?.role);
 
   function changeWidth() {
     const drawerSide = document.getElementsByClassName("drawer-side");
@@ -66,6 +66,11 @@ const HomeLayout = ({ children }) => {
             {isLoggedIn && role === "ADMIN" && (
               <li>
                 <Link to="/admin/dashboard">Admin DashBoard</Link>
+              </li>
+            )}
+            {isLoggedIn && role === "ADMIN" && (
+              <li>
+                <Link to="/course/create">Create new course</Link>
               </li>
             )}
             <li>
