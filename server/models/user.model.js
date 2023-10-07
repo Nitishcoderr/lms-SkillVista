@@ -27,6 +27,10 @@ const userSchema = new Schema({
         minLength: [5, 'Password must be at least 5 character'],
         select: false
     },
+    subscription: {
+        id: String,
+        status: String,
+      },
     avatar: {
         public_id: {
             type: "string"

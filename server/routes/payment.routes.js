@@ -4,7 +4,7 @@ import { authorizedRoles, isLoggedIn } from '../middleware/auth.middleware.js';
 
 const router = Router()
 
-router.route('razorpay-key')
+router.route('/razorpay-key')
     .get(isLoggedIn, getRazorpayApiKey);
 
 
@@ -12,7 +12,7 @@ router.route('/subscribe')
     .post(isLoggedIn, buySubscription)
 
 
-router.route('verify')
+router.route('/verify')
     .post(isLoggedIn, verifySubscription)
 
 router.route('/unsubscribe')
