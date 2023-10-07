@@ -14,6 +14,7 @@ import CreateCourse from './Pages/Course/CreateCourse';
 import Profile from './Pages/User/Profile';
 import EditProfile from './Pages/User/EditProfile';
 import Checkout from './Pages/Payment/Checkout';
+import CheckOutSuccess from './Pages/Payment/CheckOutSuccess';
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
         <Route exact path='/user/profile' element={<Profile/>} />
         <Route exact path='/user/editprofile' element={<EditProfile/>} />
         <Route exact path='/checkout' element={<Checkout/>} />
+        <Route exact path='/checkout/success' element={<CheckOutSuccess/>} />
         </Route>
 
 
