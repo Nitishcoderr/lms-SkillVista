@@ -57,82 +57,98 @@ const getRazorpayApiKey = async (req, res, next) => {
   };
 
    const verifySubscription = async (req, res, next) => {
-    const { id } = req.user;
-    const { razorpay_payment_id, razorpay_subscription_id, razorpay_signature } =
-      req.body;
-  
-    // Finding the user
-    const user = await User.findById(id);
-  
-    // Getting the subscription ID from the user object
-    const subscriptionId = user.subscription.id;
-  
-    // Generating a signature with SHA256 for verification purposes
-    // Here the subscriptionId should be the one which we saved in the DB
-    // razorpay_payment_id is from the frontend and there should be a '|' character between this and subscriptionId
-    // At the end convert it to Hex value
-    const generatedSignature = crypto
-      .createHmac('sha256', process.env.RAZORPAY_SECRET)
-      .update(`${razorpay_payment_id}|${subscriptionId}`)
-      .digest('hex');
-  
-    // Check if generated signature and signature received from the frontend is the same or not
-    if (generatedSignature !== razorpay_signature) {
-      return next(new AppError('Payment not verified, please try again.', 400));
-    }
-  
-    // If they match create payment and store it in the DB
-    await Payment.create({
-      razorpay_payment_id,
-      razorpay_subscription_id,
-      razorpay_signature,
-    });
-  
-    // Update the user subscription status to active (This will be created before this)
-    user.subscription.status = 'active';
-  
-    // Save the user in the DB with any changes
-    await user.save();
-  
-    res.status(200).json({
-      success: true,
-      message: 'Payment verified successfully',
-    });
-  };
-const cancelSubscription = async (req, res, next) => {
     try {
-
-        const { id } = req.user
-
-        const user = await User.findById(id);
-
-        if (!user) {
-            return next(
-                new AppError('Unauthorized,please login', 404)
-            )
-        }
-
-        if (user.role === 'ADMIN') {
-            return next(
-                new AppError('Admin cannot purchase a subscription', 400)
-            )
-        }
-
-        const subscriptionId = user.subscription.id;
-
-        const subscription = await razorpay.subscriptions.cancel(
-            subscriptionId
-        )
-
-        user.subscription.status = subscription.status;
-        await user.save();
-    } catch (error) {
-        return next(
-            new AppError(error.message, 400)
-        )
+      const { id } = req.user;
+      const { razorpay_payment_id, razorpay_subscription_id, razorpay_signature } =
+        req.body;
+    
+      // Finding the user
+      const user = await User.findById(id);
+  
+      if (!user || !user.subscription || !user.subscription.id || !user.subscription.status) {
+        return next(new AppError('User subscription not found or invalid', 400));
     }
-
-}
+  
+    console.log('User object:', user);
+  
+    
+      // Getting the subscription ID from the user object
+      const subscriptionId = user.subscription.id;
+  
+      const subscriptionStatus = user.subscription?.status;
+  
+      if (!subscriptionId || !subscriptionStatus) {
+          return next(new AppError('User subscription not found or invalid', 400));
+      }
+    
+      // Generating a signature with SHA256 for verification purposes
+      // Here the subscriptionId should be the one which we saved in the DB
+      // razorpay_payment_id is from the frontend and there should be a '|' character between this and subscriptionId
+      // At the end convert it to Hex value
+      const generatedSignature = crypto
+        .createHmac('sha256', process.env.RAZORPAY_SECRET)
+        .update(`${razorpay_payment_id}|${subscriptionId}`)
+        .digest('hex');
+    
+      // Check if generated signature and signature received from the frontend is the same or not
+      if (generatedSignature !== razorpay_signature) {
+        return next(new AppError('Payment not verified, please try again.', 400));
+      }
+    
+      // If they match create payment and store it in the DB
+      await Payment.create({
+        razorpay_payment_id,
+        razorpay_subscription_id,
+        razorpay_signature,
+      });
+    
+      // Update the user subscription status to active (This will be created before this)
+      user.subscription.status = 'active';
+    
+      // Save the user in the DB with any changes
+      await user.save();
+  
+      console.log('Updated user object:', user);
+    
+      res.status(200).json({
+        success: true,
+        message: 'Payment verified successfully',
+      });
+    } catch (error) {
+      return next(new AppError(error.message, 400));
+    }
+  };
+  const cancelSubscription = async (req, res, next) => {
+    try {
+      const { id } = req.user;
+  
+      const user = await User.findById(id);
+  
+      if (!user) {
+        return next(new AppError("Unauthorized, please login"));
+      }
+  
+      if (user.role === "ADMIN") {
+        return next(new AppError("Admin cannot purchase a subscription", 400));
+      }
+  
+      const subscriptionId = user.subscription.id;
+  
+      // cancel razorpay subscriptions
+      const subscription = await razorpay.subscriptions.cancel(subscriptionId);
+  
+      user.subscription.status = subscription.status;
+  
+      await user.save();
+      res.status(200).json({
+        success: true,
+        message: 'Unsubscibed successfully',
+      })
+    } catch (e) {
+      return next(new AppError(e.message, 500));
+    }
+  };
+  
 const allPayments = async (req, res, next) => {
     try {
         const { count } = req.query;

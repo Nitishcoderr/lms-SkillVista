@@ -3,10 +3,10 @@ import toast from "react-hot-toast";
 import axiosInstance from '../../Helpers/axiosInstance'
 
 const initialState = {
-    isLoggedIn: localStorage.getItem('isLoggedIn') || false,
-    role: localStorage.getItem('role') || '',
-    data:localStorage.getItem('data') != undefined ? JSON.parse(localStorage.getItem('data')) : {}
-}
+  isLoggedIn: localStorage.getItem("isLoggedIn") || false,
+  data: JSON.parse(localStorage.getItem("data")) || {},
+  role: localStorage.getItem("role") || "",
+};
 
 export const createAccount = createAsyncThunk('/auth/signup', async (data) => {
     try {
@@ -82,12 +82,19 @@ export const updateProfile = createAsyncThunk("/user/update/profile", async (dat
 // GET USER
 export const getUserData = createAsyncThunk("/user/details", async () => {
     try {
-        const res = axiosInstance.get("user/me");
-        return (await res).data;
+        const res = await axiosInstance.get("/user/me");
+        const userData = (await res).data;
+
+        // Ensure subscription data exists or set to an empty object
+        userData.subscription = userData.subscription || {};
+
+        return userData;
     } catch(error) {
         toast.error(error.message);
+        throw error;
     }
 })
+
 
 const authSlice = createSlice({
     name: 'auth',
@@ -110,14 +117,19 @@ const authSlice = createSlice({
                 state.role = "";
             })
             .addCase(getUserData.fulfilled, (state, action) => {
-                if(!action?.payload?.user) return;
-                localStorage.setItem("data", JSON.stringify(action?.payload?.user));
+                const { user } = action.payload;
+            
+                localStorage.setItem("data", JSON.stringify(user));
                 localStorage.setItem("isLoggedIn", true);
-                localStorage.setItem("role", action?.payload?.user?.role);
+                localStorage.setItem("role", user?.role);
+            
+                // Update subscription status in state
+                state.subscriptionStatus = user?.subscription?.status || '';
+            
                 state.isLoggedIn = true;
-                state.data = action?.payload?.user;
-                state.role = action?.payload?.user?.role
-            });
+                state.data = user;
+                state.role = user?.role;
+            })
     }
 })
 
