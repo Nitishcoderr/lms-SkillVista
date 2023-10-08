@@ -9,7 +9,7 @@ const store = configureStore({
         auth:AuthSliceReducer,
         course:CourseSliceReducer,
         razorpay:RazorpaySliceReducer,
-        lectures:LectureSliceReducer
+        lecture:LectureSliceReducer
     },
     devTools:true
 })
