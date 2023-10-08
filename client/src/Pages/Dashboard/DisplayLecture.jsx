@@ -69,7 +69,7 @@ const DisplayLecture = () => {
                 lectures.map((lecture,idx)=>{
                     return (
                         <li className='space-y-2' key={lecture._id}>
-                            <p className='cursor-pointer' onClick={()=>setCurrentVideo(idx)}>
+                            <p className='cursor-pointer bg-white text-blue-900 px-1 rounded-sm' onClick={()=>setCurrentVideo(idx)}>
                                 <span>
                                     {" "} Lecture {idx + 1} : { " "}
                                 </span>
