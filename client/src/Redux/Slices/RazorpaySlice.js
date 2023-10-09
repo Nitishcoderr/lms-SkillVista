@@ -4,13 +4,14 @@ import toast from "react-hot-toast"
 import axiosInstance from "../../Helpers/axiosInstance"
 
 const initialState = {
-    key: "",
-    subscription_id: "",
-    isPaymentVerified: false,
-    allPayments: {},
-    finalMonths: {},
-    monthlySalesRecord: []
-}
+  key: "",
+  subscription_id: "",
+  isPaymentVerified: false,
+  allPayments: {},
+  finalMonths: {},
+  monthlySalesRecord: [],
+};
+
 
 export const getRazorPayId = createAsyncThunk("/razorpay/getId", async () => {
     try {
@@ -45,13 +46,13 @@ export const verifyUserPayment = createAsyncThunk(
         });
         return res?.data;
       } catch (error) {
-        toast.error("error?.response?.data?.message");
+        toast.error(error?.response?.data?.message);
       }
     }
   );
   
 
-export const getPaymentRecord = createAsyncThunk("/payments/record", async () => {
+  export const getPaymentRecord = createAsyncThunk("/payments/record", async () => {
     try {
         const response = axiosInstance.get("/payments?count=100", );
         toast.promise(response, {
@@ -66,6 +67,7 @@ export const getPaymentRecord = createAsyncThunk("/payments/record", async () =>
         toast.error("Operation failed");
     }
 });
+
 
 export const cancelCourseBundle = createAsyncThunk("/cancelCourse",async () => {
     try {
@@ -90,6 +92,7 @@ const razorpaySlice = createSlice({
     extraReducers: (builder) => {
         builder
         .addCase(getRazorPayId.fulfilled, (state, action) =>{
+          console.log('Fulfilled action:', action);
             state.key = action?.payload?.key;
         })
         .addCase(purchaseCourseBundle.fulfilled, (state, action) => {
@@ -102,14 +105,14 @@ const razorpaySlice = createSlice({
         })
         .addCase(verifyUserPayment.rejected, (state, action) => {
             console.log(action);
-            toast.success(action?.payload?.message);
+            toast.error(action?.payload?.message);
             state.isPaymentVerified = action?.payload?.success;
         })
         .addCase(getPaymentRecord.fulfilled, (state, action) => {
-            state.allPayments = action?.payload?.allPayments;
-            state.finalMonths = action?.payload?.finalMonths;
-            state.monthlySalesRecord = action?.payload?.monthlySalesRecord;
-        })
+          state.allPayments = action?.payload?.subscriptions;
+          state.finalMonths = action?.payload?.finalMonths;
+          state.monthlySalesRecord = action?.payload?.monthlySalesRecord;
+      })
     }
 });
 
